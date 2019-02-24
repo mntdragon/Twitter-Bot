@@ -14,13 +14,8 @@ var T = new Twitter(config);
 
 // ## Build the Bot
 
-// -- search for Tweets
-// --- q is ONLY REQUIRED parameter, store search query
-// --- count for the number of tweets I want to return
-// --- result_type: recent to return ONLY the most RECENT results ( other are mixed, popular )
-// --- lang: return your wish language results
 var parameters = {
-    q: '#Egotistic',
+    q: '#MAMAMOO',
     count: 10,
     result_type: 'recent',
     lang: 'en'
@@ -31,22 +26,15 @@ T.get('search/tweets', parameters, function (error, data, response) {
     if (!error) {
         // --- array of multiple tweets data.statuses object
         for (let i = 0; i < data.statuses.length; i++) {
-            // --- capture the tweer id via data.statuses[i].id_str, which is NEEDED for the post request
-            let id = {
-                id: data.statuses[i].id_str
+            // --- friendships/create requires the username of the person we want to follow
+            let screen_name = data.statuses[i].user.screen_name;
+
+            T.post('friendships/create', {screen_name}, function(error, response){
+            if(error){
+                console.log(error);
+            } else {
+                console.log(screen_name, ': **FOLLOWED**');
             }
-            // --- favorite each one individually
-            T.post('favorites/create', id, function (error, response) {
-                if (error) {
-                    console.log(error[0].message);
-                }
-                // --- log the tweet url
-                else {
-                    let username = response.user.screeen_name;
-                    let tweetID = response.id_str;
-                    // --- see which tweets the bot has favorited
-                    console.log('Favorited: ', `https://twitter.com/${username}/status/${tweetID}`)
-                }
             });
         }
     } else {
